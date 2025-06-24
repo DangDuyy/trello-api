@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Updated by trungquandev.com's author on August 17 2023
  * YouTube: https://youtube.com/@trungquandev
@@ -5,28 +6,48 @@
  */
 
 import express from 'express'
-import { mapOrder } from '~/utils/sorts.js'
+import { CONNECT_DB, GET_DB } from '~/config/mongodb'
 
-const app = express()
+const START_SERVER = () => {
 
-const hostname = 'localhost'
-const port = 8017
 
-app.get('/', (req, res) => {
-  // Test Absolute import mapOrder
-  console.log(mapOrder(
-    [ { id: 'id-1', name: 'One' },
-      { id: 'id-2', name: 'Two' },
-      { id: 'id-3', name: 'Three' },
-      { id: 'id-4', name: 'Four' },
-      { id: 'id-5', name: 'Five' } ],
-    ['id-5', 'id-4', 'id-2', 'id-3', 'id-1'],
-    'id'
-  ))
-  res.end('<h1>Hello World!</h1><hr>')
-})
+  const app = express()
 
-app.listen(port, hostname, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Hello Trung Quan Dev, I am running at ${ hostname }:${ port }/`)
-})
+  const hostname = 'localhost'
+  const port = 8017
+
+  app.get('/', async (req, res) => {
+    // Test Absolute import mapOrder
+    // eslint-disable-next-line no-console
+    console.log(await GET_DB().listCollections().toArray())
+    res.end('<h1>Hello World!</h1><hr>')
+  })
+
+  app.listen(port, hostname, () => {
+    // eslint-disable-next-line no-console
+    console.log(`3. Hello Trung Quan Dev, I am running at ${ hostname }:${ port }/`)
+  })
+}
+
+(async () => {
+  try {
+    //chi khi ket noi database thanh cong moi start server
+    console.log('1. Connect to MongoDB Atlas')
+    await CONNECT_DB()
+    console.log('2. Connect to MongoDB Atlas')
+    START_SERVER()
+  }
+  catch (error) {
+    console.error(error)
+    process.exit(0)
+  }
+})()
+
+// console.log('1. Connect to MongoDB Atlas')
+// CONNECT_DB()
+//   .then( () => console.log('2. Connect to MongoDB Atlas'))
+//   .then( () => START_SERVER())
+//   .catch( error => {
+//     console.error(error)
+//     process.exit(0)
+//   })

@@ -34,3 +34,7 @@ export const GET_DB = () => {
   if (!trelloDatabaseInstance) throw new Error('MUST CONNECT DATABASE FIRST')
   return trelloDatabaseInstance
 }
+
+export const CLOSE_DB = async () => {
+  await mongoClientInstance.close()
+}

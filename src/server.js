@@ -21,6 +21,10 @@ const START_SERVER = () => {
   //   res.end('<h1>Hello World!</h1><hr>')
   // })
 
+  //enable res.body json data
+  app.use(express.json())
+
+  //use api v1
   app.use('/V1', APIs_V1)
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {

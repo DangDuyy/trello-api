@@ -8,17 +8,20 @@
 import exitHook from 'async-exit-hook'
 import express from 'express'
 import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
+import { APIs_V1 } from '~/routes/v1'
 import { env } from '~/config/environment'
 const START_SERVER = () => {
 
 
   const app = express()
 
-  app.get('/', async (req, res) => {
-    // Test Absolute import mapOrder
-    // eslint-disable-next-line no-console
-    res.end('<h1>Hello World!</h1><hr>')
-  })
+  // app.get('/', (req, res) => {
+  //   // Test Absolute import mapOrder
+  //   // eslint-disable-next-line no-console
+  //   res.end('<h1>Hello World!</h1><hr>')
+  // })
+
+  app.use('/V1', APIs_V1)
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {
     // eslint-disable-next-line no-console

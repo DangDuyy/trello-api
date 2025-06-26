@@ -10,6 +10,7 @@ import express from 'express'
 import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
 import { APIs_V1 } from '~/routes/v1'
 import { env } from '~/config/environment'
+import { errorHandlingMiddleware } from '~/middlewares/exampleHandlingMiddleware'
 const START_SERVER = () => {
 
 
@@ -26,6 +27,9 @@ const START_SERVER = () => {
 
   //use api v1
   app.use('/V1', APIs_V1)
+
+  //middle xử lý lỗi tập trung
+  app.use(errorHandlingMiddleware)
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {
     // eslint-disable-next-line no-console

@@ -6,6 +6,7 @@
  */
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -20,11 +21,7 @@ const createNew = async (req, res, next) => {
     next()
   }
   catch (error) {
-    console.log(error)
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      //new Error khi lam viec voi Joi
-      errors: new Error(error).message
-    })
+    next(new ApiError(StatusCodes.NETWORK_AUTHENTICATION_REQUIRED, new Error(error).message))
   }
 }
 

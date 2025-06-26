@@ -5,6 +5,7 @@
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const createNew = ( async (req, res, next) => {
   try {
@@ -16,15 +17,17 @@ const createNew = ( async (req, res, next) => {
     console.log('req.jwtDecoded ', req.jwtDecoded)
     //dieu huong du lieu sang tang service
 
+    // throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Bug!!!')
     //co ket qua thi tra ve phia client
-    res.status(StatusCodes.CREATED).json({
-      message: 'POST from controller: API create new board'
-    })
+    // res.status(StatusCodes.CREATED).json({
+    //   message: 'POST from controller: API create new board'
+    // })
   }
   catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: error.message
-    })
+    next(error)
+    // res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    //   errors: error.message
+    // })
   }
 })
 

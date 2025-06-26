@@ -8,21 +8,22 @@ import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (req, res, next) => {
-  const correntCondition = Joi.object({
+  const correctCondition = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict(),
     description: Joi.string().required().min(3).max(256).trim().strict()
   })
   try {
-    console.log('req body ', req.body)
     //validate du
     //chinh dinh abortEarly: false de truong hop nhieu loi validation thi tra ve tat ca loi
-    await correntCondition.validateAsync(req.body, { abortEarly: false })
-    res.status(StatusCodes.CREATED).json({ message: 'NOTE: API Create new board' })
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    //Validate du lieu hop le thi nhay sang tang khac
+    next()
   }
   catch (error) {
     console.log(error)
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      errors: error.message
+      //new Error khi lam viec voi Joi
+      errors: new Error(error).message
     })
   }
 }

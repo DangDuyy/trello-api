@@ -3,8 +3,9 @@
  * YouTube: https://youtube.com/@trungquandev
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
-import { Joi } from 'joi'
+import Joi from 'joi'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { GET_DB } from '~/config/mongodb'
 //define name and schema
 const BOARD_COLLECTION_NAME = 'boards'
 
@@ -23,7 +24,34 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+//tao record moi
+const createNew = (async (data) => {
+  try {
+    const createBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(data)
+    return createBoard
+  }
+  catch (error) {
+    //throw new de co stacktrace
+    throw new Error(error)
+  }
+})
+
+//tim record by id
+const findOneById = (async (id) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
+      _id: id
+    })
+    return result
+  }
+  catch (error) {
+    throw new Error(error)
+  }
+})
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
-  BOARD_COLLECTION_SCHEMA
+  BOARD_COLLECTION_SCHEMA,
+  createNew,
+  findOneById
 }

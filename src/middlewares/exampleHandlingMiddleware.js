@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Updated by trungquandev.com's author on Sep 27 2023
  * YouTube: https://youtube.com/@trungquandev

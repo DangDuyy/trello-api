@@ -4,18 +4,18 @@
  * YouTube: https://youtube.com/@trungquandev
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
+import { boardService } from '~/services/boardService'
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '~/utils/ApiError'
-
 const createNew = ( async (req, res, next) => {
   try {
     //dieu huong du lieu sang tang service
 
     // throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Bug!!!')
     //co ket qua thi tra ve phia client
-    // res.status(StatusCodes.CREATED).json({
-    //   message: 'POST from controller: API create new board'
-    // })
+    const createBoard = await boardService.createNew(req.body)
+
+    //co ket qua thi tra ve phia client
+    res.status(StatusCodes.CREATED).json(createBoard)
   }
   catch (error) {
     next(error)

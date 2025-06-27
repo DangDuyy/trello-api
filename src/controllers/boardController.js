@@ -24,7 +24,23 @@ const createNew = ( async (req, res, next) => {
     // })
   }
 })
+const getDetails = ( async (req, res, next) => {
+  try {
+    const boardId = req.param.id
+    const board = await boardService.getDetails(boardId)
+
+    //co ket qua thi tra ve phia client
+    res.status(StatusCodes.OK).json(board)
+  }
+  catch (error) {
+    next(error)
+    // res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    //   errors: error.message
+    // })
+  }
+})
 
 export const boardController = {
-  createNew
+  createNew,
+  getDetails
 }

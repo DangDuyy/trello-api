@@ -26,7 +26,7 @@ const createNew = ( async (req, res, next) => {
 })
 const getDetails = ( async (req, res, next) => {
   try {
-    const boardId = req.param.id
+    const boardId = req.params.id
     const board = await boardService.getDetails(boardId)
 
     //co ket qua thi tra ve phia client

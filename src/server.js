@@ -7,6 +7,8 @@
 
 import exitHook from 'async-exit-hook'
 import express from 'express'
+import cors from 'cors'
+import { corsOptions } from './config/cors'
 import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
 import { APIs_V1 } from '~/routes/v1'
 import { env } from '~/config/environment'
@@ -15,6 +17,8 @@ const START_SERVER = () => {
 
 
   const app = express()
+
+  app.use(cors(corsOptions))
 
   // app.get('/', (req, res) => {
   //   // Test Absolute import mapOrder

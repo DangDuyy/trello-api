@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Updated by trungquandev.com's author on August 17 2023
  * YouTube: https://youtube.com/@trungquandev
@@ -7,6 +8,9 @@ import Joi from 'joi'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
+import { BOARD_TYPES } from '~/utils/constants'
+import { columnModel } from './columnModel'
+import { cardModel } from './cardModel'
 //define name and schema
 const BOARD_COLLECTION_NAME = 'boards'
 
@@ -16,6 +20,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   slug: Joi.string().required().min(3).trim().strict(),
   description: Joi.string().required().min(5).max(255).trim().strict(),
   // Lưu ý các item trong mảng columnOrderIds là ObjectId nên cần thêm pattern cho chuẩn nhé, (lúc quay video số 57 mình quên nhưng sang đầu video số 58 sẽ có nhắc lại về cái này.)
+  type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
   columnOrderIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
@@ -26,7 +31,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
 })
 
 const validateBeforeCreate = (async (data) => {
-  const result = await BOARD_COLLECTION_SCHEMA.validateAsync(data, {abortEarly:false})
+  const result = await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
   return result
 })
 
@@ -59,10 +64,35 @@ const findOneById = (async (id) => {
 
 const getDetails = (async (boardId) => {
   try {
-    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(boardId)
-    })
-    return result
+    //query tong hop cua mongodb
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      //match: tim dung record co id giong nhau va chua bi destroy
+      { $match: {
+        _id: new ObjectId(boardId),
+        _destroy: false
+      } },
+      //lookup: tim kiem
+      { $lookup: {
+        from: columnModel.COLUMN_COLLECTION_NAME,
+        //id trong model hien tai
+        localField: '_id',
+        //khoa ngoai tro den bang can join
+        foreignField: 'boardId',
+        as: 'columns'
+      } },
+      { $lookup: {
+        from: cardModel.CARD_COLLECTION_NAME,
+        //id trong model hien tai
+        localField: '_id',
+        //khoa ngoai tro den bang can join
+        foreignField: 'boardId',
+        as: 'cards'
+      } }
+    ]).toArray()
+    console.log(result)
+
+    //neu co du lieu tra ve board o index 0 , nguoc laij tra ve null
+    return result[0] || {}
   }
   catch (error) {
     throw new Error(error)
@@ -76,3 +106,4 @@ export const boardModel = {
   findOneById,
   getDetails
 }
+

@@ -92,7 +92,7 @@ const getDetails = (async (boardId) => {
     console.log(result)
 
     //neu co du lieu tra ve board o index 0 , nguoc laij tra ve null
-    return result[0] || {}
+    return result[0] || null
   }
   catch (error) {
     throw new Error(error)

@@ -25,8 +25,14 @@ const validateBeforeCreate = (async (data) => {
 const createNew = (async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
+    //convert boardId va ColumnId tu string sang object
+    const newCardToAdd = {
+      ...validData,
+      boardId: new ObjectId(validData.boardId),
+      columnId: new ObjectId(validData.columnId)
+    }
     console.log('Valid Data: ', validData)
-    const createColumn = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(validData)
+    const createColumn = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardToAdd)
     return createColumn
   }
   catch (error) {

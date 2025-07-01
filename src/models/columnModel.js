@@ -27,8 +27,13 @@ const validateBeforeCreate = (async (data) => {
 const createNew = (async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
+    //convert tu boardId kieu string sang objectId
+    const newColumnToAdd = {
+      ...validData,
+      boardId: new ObjectId(validData.boardId)
+    }
     console.log('Valid Data: ', validData)
-    const createColumn = await GET_DB().collection(COLUMN_COLLECTION_NAME).insertOne(validData)
+    const createColumn = await GET_DB().collection(COLUMN_COLLECTION_NAME).insertOne(newColumnToAdd)
     return createColumn
   }
   catch (error) {
@@ -44,6 +49,20 @@ const findOneById = (async (id) => {
       _id: new ObjectId(id)
     })
     return result
+  }
+  catch (error) {
+    throw new Error(error)
+  }
+})
+
+const pushCardOrderIds = ( async (card) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(card.columnId) },
+      { $push: { cardOrderIds: new ObjectId (card._id) } },
+      { returnDocument: 'after' }
+    )
+    return result.value || null
   }
   catch (error) {
     throw new Error(error)
@@ -91,6 +110,7 @@ export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  pushCardOrderIds
   // getDetails
 }

@@ -7,6 +7,7 @@
  */
 import { StatusCodes } from 'http-status-codes'
 import { columnModel } from '~/models/columnModel'
+import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 const createNew = ( async (reqBody) => {
   try {
@@ -18,7 +19,13 @@ const createNew = ( async (reqBody) => {
     const createColumn = await columnModel.createNew(newColumn)
 
     const getNewColumn = await columnModel.findOneById(createColumn.insertedId)
+    if (getNewColumn) {
+      //xu ly cau truc data truoc khi tra ve
+      getNewColumn.cards = []
 
+      //cap nhat mang columnOrderIds trong collection Boards
+      await boardModel.pushColumnOrderIds(getNewColumn)
+    }
     return getNewColumn
   }
   catch (error) {

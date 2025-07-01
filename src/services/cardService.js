@@ -6,6 +6,7 @@
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
 import { StatusCodes } from 'http-status-codes'
+import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
 const createNew = ( async (reqBody) => {
@@ -19,6 +20,9 @@ const createNew = ( async (reqBody) => {
 
     const getNewCard = await cardModel.findOneById(createCard.insertedId)
 
+    if (getNewCard) {
+      await columnModel.pushCardOrderIds(getNewCard)
+    }
     return getNewCard
   }
   catch (error) {

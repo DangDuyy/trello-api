@@ -99,11 +99,30 @@ const getDetails = (async (boardId) => {
   }
 })
 
+//push columnId vao mang columnOrderIds
+const pushColumnOrderIds = ( async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      //tim ra boardId tuong ung voi column do de day
+      { _id: new ObjectId(column.boardId) },
+
+      //append cac columnId vao mang columnOrderIds cua collection board
+      { $push: { columnOrderIds: new ObjectId (column._id) } },
+      { returnDocument: 'after' }
+    )
+    return result.value || null
+  }
+  catch (error) {
+    throw new Error(error)
+  }
+})
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds
 }
 

@@ -30,6 +30,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+const INVALID_UPDATE_VALUES = ['_id', 'createdAt']
+
+
 const validateBeforeCreate = (async (data) => {
   const result = await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
   return result
@@ -105,12 +108,32 @@ const pushColumnOrderIds = ( async (column) => {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       //tim ra boardId tuong ung voi column do de day
       { _id: new ObjectId(column.boardId) },
-
       //append cac columnId vao mang columnOrderIds cua collection board
       { $push: { columnOrderIds: new ObjectId (column._id) } },
       { returnDocument: 'after' }
     )
-    return result.value || null
+    return result || null
+  }
+  catch (error) {
+    throw new Error(error)
+  }
+})
+//push columnId vao mang columnOrderIds
+const update = ( async (boardId, updateData) => {
+  try {
+    //lay tra ten cac attribute cua table, neu co truong createdAt va _id thi khong cap nhat 2 truong do
+    Object.keys(updateData).forEach( fieldName => {
+      if (INVALID_UPDATE_VALUES.includes(fieldName))
+        delete updateData.fieldName
+    })
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      //tim ra boardId tuong ung voi column do de day
+      { _id: new ObjectId(boardId) },
+      //append cac columnId vao mang columnOrderIds cua collection board
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return result || null
   }
   catch (error) {
     throw new Error(error)
@@ -123,6 +146,7 @@ export const boardModel = {
   createNew,
   findOneById,
   getDetails,
-  pushColumnOrderIds
+  pushColumnOrderIds,
+  update
 }
 

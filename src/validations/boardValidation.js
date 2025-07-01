@@ -27,6 +27,27 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  //luu y: khong dung required() trong truong hop update
+  const correctCondition = Joi.object({
+    title: Joi.string().min(3).max(50).trim().strict(),
+    description: Joi.string().min(3).max(256).trim().strict()
+    // type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required()
+  })
+  try {
+    await correctCondition.validateAsync(req.body, {
+      abortEarly: false,
+      //do cap nhat truong columnOrderIds - chua co trong correctCondition, nen phai cho phep unknown
+      allowUnknown: true
+    })
+
+    next()
+  }
+  catch (error) {
+    next(new ApiError(StatusCodes.NETWORK_AUTHENTICATION_REQUIRED, new Error(error).message))
+  }
+}
+
 export const boardValidation = {
-  createNew
+  createNew, update
 }

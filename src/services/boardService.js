@@ -6,7 +6,6 @@
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
 import { StatusCodes } from 'http-status-codes'
-import { date } from 'joi'
 import { cloneDeep } from 'lodash'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'

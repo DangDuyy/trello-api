@@ -124,7 +124,7 @@ const update = ( async (boardId, updateData) => {
     //lay tra ten cac attribute cua table, neu co truong createdAt va _id thi khong cap nhat 2 truong do
     Object.keys(updateData).forEach( fieldName => {
       if (INVALID_UPDATE_VALUES.includes(fieldName))
-        delete updateData.fieldName
+        delete updateData[fieldName]
     })
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       //tim ra boardId tuong ung voi column do de day

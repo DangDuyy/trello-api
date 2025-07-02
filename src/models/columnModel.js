@@ -75,7 +75,7 @@ const update = async (columnId, updateData) => {
   try {
     Object.keys(updateData).forEach( fieldName => {
       if (INVALID_UPDATE_VALUES.includes(fieldName))
-        delete updateData.fieldName
+        delete updateData[fieldName]
     })
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(columnId) },

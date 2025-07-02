@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import Joi from 'joi'
+import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { ObjectId } from 'mongodb'
 //ten table trong db
 const CARD_COLLECTION_NAME = 'cards'
 const CARD_COLLECTION_SCHEMA = Joi.object({
@@ -21,6 +21,7 @@ const validateBeforeCreate = (async (data) => {
   return result
 })
 
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 //tao record moi
 const createNew = (async (data) => {
   try {
@@ -53,6 +54,25 @@ const findOneById = (async (id) => {
     throw new Error(error)
   }
 })
+
+const update = async (cardId, updateData) => {
+  try {
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName))
+        delete updateData[fieldName]
+    })
+    if (updateData.columnId) updateData.columnId = new ObjectId(updateData.columnId)
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return result || null
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
 
 // const getDetails = (async (boardId) => {
 //   try {
@@ -95,5 +115,6 @@ export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  update
 }

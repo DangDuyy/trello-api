@@ -7,6 +7,8 @@
  */
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
+import { columnModel } from '~/models/columnModel'
+import { cardModel } from '~/models/cardModel'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatter'
@@ -71,9 +73,41 @@ const update = ( async (boardId, reqBody) => {
   }
 })
 
+const moveCardToDifferentColumn = async (reqBody) => {
+  try {
+    // eslint-disable-next-line no-console
+    console.log('boardService - moveCardToDifferentColumn:', reqBody)
+    
+    //cap nhat lai column cu, sau khi lay card ra
+    await columnModel.update(reqBody.prevColumnId, {
+      cardOrderIds: reqBody.prevCardOrderIds || [],
+      updatedAt: Date.now()
+    })
+    
+    //cap nhat lai column moi, sau khi keo card vao
+    await columnModel.update(reqBody.nextColumnId, {
+      cardOrderIds: reqBody.nextCardOrderIds || [],
+      updatedAt: Date.now()
+    })
+    
+    //cap nhat lai truong columnId cua card sau khi keo
+    await cardModel.update(reqBody.currentCardId, {
+      columnId: reqBody.nextColumnId,
+      updatedAt: Date.now()
+    })
+
+    return { updateResult: 'successfully' }
+  }
+  catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error in moveCardToDifferentColumn:', err)
+    throw err
+  }
+}
 
 export const boardService = {
   createNew,
   getDetails,
-  update
+  update,
+  moveCardToDifferentColumn
 }

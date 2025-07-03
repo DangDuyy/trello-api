@@ -63,10 +63,15 @@ const update = ( async (columnId, reqBody) => {
 
 const deleteItem = async (columnId) => {
   try {
+    const targetColumn = await columnModel.findOneById(columnId)
+    if (!targetColumn)
+      throw new ApiError(StatusCodes.NOT_FOUND, 'ColumnId is Invalid')
     //xoa column
     await columnModel.deleteOneById(columnId)
     //xoa card ben trong column do
     await cardModel.deleteManyByColumnId(columnId)
+    //xoa columnid trong mang columnOrderIds
+    await boardModel.pullColumnOrderIds(targetColumn)
     return { deleteResult: 'Delete Column and its Card successfully ' }
   }
   catch (err) {

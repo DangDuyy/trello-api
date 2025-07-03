@@ -74,6 +74,18 @@ const update = async (cardId, updateData) => {
   }
 }
 
+const deleteManyByColumnId = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany(
+      { columnId: new ObjectId(columnId) }
+    )
+    return result || null
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
+
 // const getDetails = (async (boardId) => {
 //   try {
 //     //query tong hop cua mongodb
@@ -116,5 +128,6 @@ export const cardModel = {
   CARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  update
+  update,
+  deleteManyByColumnId
 }

@@ -9,6 +9,7 @@ import { StatusCodes } from 'http-status-codes'
 import { columnModel } from '~/models/columnModel'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
+import { cardModel } from '~/models/cardModel'
 const createNew = ( async (reqBody) => {
   try {
     const newColumn = {
@@ -60,9 +61,22 @@ const update = ( async (columnId, reqBody) => {
   }
 })
 
+const deleteItem = async (columnId) => {
+  try {
+    //xoa column
+    await columnModel.deleteOneById(columnId)
+    //xoa card ben trong column do
+    await cardModel.deleteManyByColumnId(columnId)
+    return { deleteResult: 'Delete Column and its Card successfully ' }
+  }
+  catch (err) {
+    throw err
+  }
+}
 
 export const columnService = {
   createNew,
   getDetails,
-  update
+  update,
+  deleteItem
 }

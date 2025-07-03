@@ -35,10 +35,21 @@ const START_SERVER = () => {
   //middle xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
+  if (env.BUILD_MODE === 'production') {
+    // moi truong production do render support
+    app.listen(process.env.PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`3. Hello ${env.AUTHOR}, I am running at ${ env.APP_HOST }:${ env.APP_PORT }/`)
-  })
+      console.log(`3. Production: Hello ${env.AUTHOR}, I am running at Port: ${ process.env.PORT }/`)
+    })
+  }
+  else
+  {
+    //moi truong local dev
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    // eslint-disable-next-line no-console
+      console.log(`3. LocalDev: Hello ${env.AUTHOR}, I am running at ${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }/`)
+    })
+  }
 
   exitHook(() => {
     console.log('4. Disconnecting from MongoDB Cloud Atlas')

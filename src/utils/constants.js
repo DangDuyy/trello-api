@@ -6,7 +6,7 @@
 //nhung domain duoc phep hoat dong
 export const WHITELIST_DOMAINS = [
 // khong can them vo localhost vi da cho phep environment dev duoc su dung roi
-  'https://mern-trello-app-five.vercel.app/'
+  'https://mern-trello-app-five.vercel.app'
 ]
 
 export const BOARD_TYPES = {

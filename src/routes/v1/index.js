@@ -8,6 +8,7 @@ import { StatusCodes } from 'http-status-codes'
 import { boardRoutes } from './boardRoute'
 import { cardRoutes } from './cartRoute'
 import { columnRoutes } from './columnRoute'
+import { userRoutes } from './userRoute'
 const Router = express.Router()
 
 Router.get('/status', (req, res) => {
@@ -19,4 +20,6 @@ Router.use('/boards', boardRoutes)
 Router.use('/cards', cardRoutes)
 //create new column
 Router.use('/columns', columnRoutes)
+//use
+Router.use('/users', userRoutes)
 export const APIs_V1 = Router

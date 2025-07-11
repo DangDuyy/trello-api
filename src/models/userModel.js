@@ -2,8 +2,8 @@ import Joi from 'joi'
 import { GET_DB } from '~/config/mongodb'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
 const USER_ROLE = {
-  CLIENT: 'CLIENT',
-  ADMIN: 'ADMIN'
+  CLIENT: 'client',
+  ADMIN: 'admin'
 }
 import { ObjectId } from 'mongodb'
 
@@ -41,10 +41,10 @@ const createNew = async (data) => {
 }
 
 //tim user theo id
-const findOneById = async (id) => {
+const findOneById = async (userId) => {
   try {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id)
+      _id: new ObjectId(userId)
     })
     return result
   }
@@ -53,6 +53,19 @@ const findOneById = async (id) => {
   }
 }
 
+//tim user theo email
+const findOneByEmail = async (emailValue) => {
+  try {
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
+      { email: emailValue }
+    )
+    return result || null
+  }
+  catch (err)
+  {
+    throw new Error(err)
+  }
+}
 //update user
 const update = async (userId, data) => {
   try {
@@ -77,6 +90,7 @@ export const userModel = {
   createNew,
   update,
   findOneById,
+  findOneByEmail,
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA
 }

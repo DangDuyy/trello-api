@@ -56,7 +56,7 @@ const findOneById = async (userId) => {
 //tim user theo email
 const findOneByEmail = async (emailValue) => {
   try {
-    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne(
       { email: emailValue }
     )
     return result || null
@@ -82,7 +82,7 @@ const update = async (userId, data) => {
   }
   catch (err)
   {
-    throw new Error
+    throw new Error(err)
   }
 }
 

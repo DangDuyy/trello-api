@@ -2,6 +2,8 @@ import { StatusCodes } from 'http-status-codes'
 import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import bcryptjs from 'bcryptjs'
+import { v4 as uuidv4 } from 'uuid'
+
 const createNew = async (reqBody) => {
   try {
     const existUser = await userModel.findOneByEmail(reqBody.email)

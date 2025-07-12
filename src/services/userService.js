@@ -1,11 +1,11 @@
-import { StatusCodes } from 'http-status-codes'
-import { userModel } from '~/models/userModel'
-import ApiError from '~/utils/ApiError'
 import bcryptjs from 'bcryptjs'
+import { StatusCodes } from 'http-status-codes'
 import { v4 as uuidv4 } from 'uuid'
-import { pickUser } from '~/utils/formatter'
-import { BrevoProvider } from '~/providers/BrevoProvider'
 import { env } from '~/config/environment'
+import { userModel } from '~/models/userModel'
+import { ResendProvider } from '~/providers/ResendProvider'
+import ApiError from '~/utils/ApiError'
+import { pickUser } from '~/utils/formatter'
 const createNew = async (reqBody) => {
   try {
     const existUser = await userModel.findOneByEmail(reqBody.email)
@@ -28,12 +28,14 @@ const createNew = async (reqBody) => {
 
     const verificationLink = `${env.WEBSITE_DOMAIN_DEVELOPMENT}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
 
-    const customSubject = 'Please verify your email to use services'
-    const htmlContent = `
+    const subject = 'Please verify your email to use services'
+    const html = `
       <h3>Here is a verification link!!!</h3>
-      <h3>${verificationLink}</h3>
-    `
-    await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
+      <h3>${verificationLink}</h3> `
+    const to = getNewUser.email
+
+    const sendEmailResponse = await ResendProvider.sendEmail({ to, subject, html })
+    console.log('Send email successfully ', sendEmailResponse)
 
     return pickUser(getNewUser)
   }

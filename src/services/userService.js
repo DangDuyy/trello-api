@@ -1,3 +1,4 @@
+import { async } from '@babel/runtime/helpers/regeneratorRuntime'
 import bcryptjs from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
 import { v4 as uuidv4 } from 'uuid'
@@ -6,6 +7,8 @@ import { userModel } from '~/models/userModel'
 import { ResendProvider } from '~/providers/ResendProvider'
 import ApiError from '~/utils/ApiError'
 import { pickUser } from '~/utils/formatter'
+import { JwtProvider } from '~/providers/JwtProvider'
+
 const createNew = async (reqBody) => {
   try {
     const existUser = await userModel.findOneByEmail(reqBody.email)
@@ -34,8 +37,7 @@ const createNew = async (reqBody) => {
       <h3>${verificationLink}</h3> `
     const to = getNewUser.email
 
-    const sendEmailResponse = await ResendProvider.sendEmail({ to, subject, html })
-    console.log('Send email successfully ', sendEmailResponse)
+    await ResendProvider.sendEmail({ to, subject, html })
 
     return pickUser(getNewUser)
   }
@@ -44,6 +46,70 @@ const createNew = async (reqBody) => {
   }
 }
 
+const verifyAccount = async (reqBody) => {
+  try {
+    //query user trong database
+    const existUser = await userModel.findOneByEmail(reqBody.email)
+
+    //kiem tra user ton tai
+    if (!existUser) throw ApiError(StatusCodes.NOT_FOUND, 'Account not found')
+    //kiem tra user da duoc kich hoat
+    if (existUser.isActive) throw ApiError(StatusCodes.NOT_ACCEPTABLE, 'Account is already active')
+    if (reqBody.token !== existUser.verifyToken) throw ApiError(StatusCodes.NOT_ACCEPTABLE, 'Token is invalid')
+
+    //neu moi thu oke
+    const updateData = {
+      isActive: true,
+      verifyToken: null
+    }
+
+    const updatedUser = await userModel.update(existUser._id, updateData)
+    return pickUser(updatedUser)
+  }
+  catch (error) { throw Error(error) }
+}
+
+const login = async (reqBody) => {
+  try {
+    const existUser = await userModel.findOneByEmail(reqBody.email)
+
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Account is not active')
+
+    if (!bcryptjs.compareSync(reqBody.password, existUser.password)) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your email or password is incorrect')
+
+    //neu moi thu oke
+    //tao thong tin de dinh kem trong jwt token bao gom id va email cua user
+    const userInfo = {
+      _id: existUser._id,
+      email: existUser.email
+    }
+
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_SECRET_SIGNATURE,
+      env.ACCESS_TOKEN_LIFE
+    )
+
+    const refreshToken = await JwtProvider.generateToken(
+      userInfo,
+      env. REFRESH_TOKEN_SECRET_SIGNATURE,
+      env.REFRESH_TOKEN_LIFE
+    )
+
+    return { accessToken, refreshToken, ...pickUser(existUser) }
+  }
+  catch (err)
+  {
+    throw Error(err)
+  }
+}
+
+// const verifyAccount = async () => {
+
+// }
 export const userService = {
-  createNew
+  createNew,
+  login,
+  verifyAccount
 }

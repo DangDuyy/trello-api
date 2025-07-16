@@ -13,12 +13,16 @@ import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
 import { APIs_V1 } from '~/routes/v1'
 import { env } from '~/config/environment'
 import { errorHandlingMiddleware } from '~/middlewares/exampleHandlingMiddleware'
+import cookieParser from 'cookie-parser'
+
 const START_SERVER = () => {
 
 
   const app = express()
 
   app.use(cors(corsOptions))
+
+  app.use(cookieParser())
 
   // app.get('/', (req, res) => {
   //   // Test Absolute import mapOrder

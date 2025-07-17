@@ -7,7 +7,7 @@ import ApiError from '~/utils/ApiError'
 
 const isAuthorized = async (req, res, next) => {
   //lay access token tu request cookies phia client-  withCredential trong file authorizeAxios
-  const clientAccessToken = req.cookie?.accessToken
+  const clientAccessToken = req.cookies?.accessToken
 
   if (!clientAccessToken)
   {
@@ -33,6 +33,8 @@ const isAuthorized = async (req, res, next) => {
       next (new ApiError(StatusCodes.GONE, 'Need to refresh token.'))
       return
     }
+
+    next(new ApiError( StatusCodes.NOT_ACCEPTABLE, 'Unauthorized'))
 
   }
 }

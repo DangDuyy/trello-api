@@ -17,9 +17,13 @@ import cookieParser from 'cookie-parser'
 
 const START_SERVER = () => {
 
-
+  //fix bug cache from disk
   const app = express()
 
+  app.use( (req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
   app.use(cors(corsOptions))
 
   app.use(cookieParser())

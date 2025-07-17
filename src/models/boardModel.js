@@ -11,6 +11,7 @@ import { ObjectId } from 'mongodb'
 import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
+
 //define name and schema
 const BOARD_COLLECTION_NAME = 'boards'
 

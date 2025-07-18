@@ -12,4 +12,11 @@ Router.route('/verify')
 Router.route('/login')
   .post(userValidation.login, userController.login)
 
+Router.route('/logout')
+  .delete(userValidation.login, userController.login)
+
+//ban chat la dung refreshtoken de lay accesstoken moi, nen la method GET
+Router.route('/refresh_token')
+  .get(userController.refreshToken)
+
 export const userRoutes = Router

@@ -13,7 +13,7 @@ Router.route('/login')
   .post(userValidation.login, userController.login)
 
 Router.route('/logout')
-  .delete(userValidation.login, userController.login)
+  .delete(userController.logout)
 
 //ban chat la dung refreshtoken de lay accesstoken moi, nen la method GET
 Router.route('/refresh_token')

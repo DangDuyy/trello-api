@@ -48,8 +48,26 @@ const login = async (req, res, next) => {
     next(err)
   }
 }
+
+const update = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    displayName: Joi.string().trim().strict(),
+    current_password: Joi.string().pattern(PASSWORD_RULE).message(`current_passord: ${PASSWORD_RULE_MESSAGE}`),
+    new_password: Joi.string().pattern(PASSWORD_RULE).message(`new_password: ${PASSWORD_RULE_MESSAGE}`)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, {
+      abortEarly: false
+    })
+  }
+  catch (err) {
+    next(err)
+  }
+}
 export const userValidation = {
   createNew,
   verifyAccount,
-  login
+  login,
+  update
 }

@@ -16,6 +16,7 @@ const createNew = async (req, res, next) => {
 const verifyAccount = async (req, res, next) => {
   try {
     const result = await userService.verifyAccount(req.body)
+    // eslint-disable-next-line no-console
     console.log(result)
     res.status(StatusCodes.OK).json(result)
   }
@@ -81,8 +82,8 @@ const refreshToken = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const userId = req.jwtDecoded._id
-    const updateUser = await userService.update(userId, req.data)
+    const userId = req.JwtDecoded._id
+    const updateUser = await userService.update(userId, req.body)
     res.status(StatusCodes.OK).json(updateUser)
   }
   catch (err) {

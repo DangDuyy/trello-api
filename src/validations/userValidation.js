@@ -60,6 +60,7 @@ const update = async (req, res, next) => {
     await correctCondition.validateAsync(req.body, {
       abortEarly: false
     })
+    next()
   }
   catch (err) {
     next(err)

@@ -94,7 +94,7 @@ const login = async (reqBody) => {
 
     const refreshToken = await JwtProvider.generateToken(
       userInfo,
-      env. REFRESH_TOKEN_SECRET_SIGNATURE,
+      env.REFRESH_TOKEN_SECRET_SIGNATURE,
       // 15
       env.REFRESH_TOKEN_LIFE
     )
@@ -132,9 +132,43 @@ const refreshToken = async (clientRefreshToken) => {
     throw new Error(err)
   }
 }
+
+const update = async (userId, reqBody) => {
+  try {
+    //query user va kiem tra cho chac chan
+    const existUser = await userModel.findOneById(userId)
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
+
+    //khoi tao ket qua updateduser ban dau la empty
+    let updatedUser = {}
+
+    //truong hop 1: changePassword
+    if (reqBody.current_password && reqBody.new_password) {
+      //kiem tra xem current password xem co dung khong
+      if (!bcryptjs.compareSync(reqBody.current_password, existUser.password))
+        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your password or email is incorrect')
+      //nguoc lai hashpassword moi tu new_password vao database
+      updatedUser = await userModel.update(existUser._id, {
+        password: bcryptjs.hashSync(reqBody.new_password, 8)
+      })
+    }
+    //truong hop update thong tin chung nhu displayName
+    else {
+      updatedUser = await userModel.update(existUser._id, reqBody)
+    }
+
+    return pickUser(updatedUser)
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
+
 export const userService = {
   createNew,
   login,
   verifyAccount,
-  refreshToken
+  refreshToken,
+  update
 }

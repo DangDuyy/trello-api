@@ -7,6 +7,7 @@ import { JwtProvider } from '~/providers/JwtProvider'
 import { ResendProvider } from '~/providers/ResendProvider'
 import ApiError from '~/utils/ApiError'
 import { pickUser } from '~/utils/formatter'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -133,7 +134,7 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     //query user va kiem tra cho chac chan
     const existUser = await userModel.findOneById(userId)
@@ -151,6 +152,16 @@ const update = async (userId, reqBody) => {
       //nguoc lai hashpassword moi tu new_password vao database
       updatedUser = await userModel.update(existUser._id, {
         password: bcryptjs.hashSync(reqBody.new_password, 8)
+      })
+    }
+    else if (userAvatarFile) {
+      //truong hop upload file len cloudStorage, cu the la Cloudinary
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+      console.log(uploadResult)
+
+      //luu lai url cua file vao database
+      updatedUser = await userModel.update(existUser._id, {
+        avatar: uploadResult.secure_url
       })
     }
     //truong hop update thong tin chung nhu displayName

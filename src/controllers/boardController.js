@@ -9,25 +9,23 @@ import { StatusCodes } from 'http-status-codes'
 const createNew = ( async (req, res, next) => {
   try {
     //dieu huong du lieu sang tang service
-
-    // throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Bug!!!')
-    //co ket qua thi tra ve phia client
-    const createBoard = await boardService.createNew(req.body)
+    const userId = req.jwtDecoded._id
+    console.log('createNew - userId:', userId, 'body:', req.body)
+    const createBoard = await boardService.createNew(userId, req.body)
 
     //co ket qua thi tra ve phia client
     res.status(StatusCodes.CREATED).json(createBoard)
   }
   catch (error) {
+    console.error('createNew error:', error)
     next(error)
-    // res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-    //   errors: error.message
-    // })
   }
 })
 const getDetails = ( async (req, res, next) => {
   try {
+    const userId = req.jwtDecoded._id
     const boardId = req.params.id
-    const board = await boardService.getDetails(boardId)
+    const board = await boardService.getDetails(userId, boardId)
 
     //co ket qua thi tra ve phia client
     res.status(StatusCodes.OK).json(board)
@@ -63,13 +61,19 @@ const moveCardToDifferentColumn = ( async (req, res, next) => {
 
 const getBoards = async (req, res, next ) => {
   try {
-    const userId = req.JwtDecoded._id
+    const userId = req.jwtDecoded._id
     const { page, itemsPerPage } = req.query
+    // eslint-disable-next-line no-console
+    console.log('getBoards - userId:', userId, 'page:', page, 'itemsPerPage:', itemsPerPage)
     const result = await boardService.getBoards(userId, page, itemsPerPage)
+    // eslint-disable-next-line no-console
+    console.log('getBoards - result:', result)
 
     res.status(StatusCodes.OK).json(result)
   }
   catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('getBoards error:', err)
     next(err)
   }
 }

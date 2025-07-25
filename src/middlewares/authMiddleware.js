@@ -21,7 +21,7 @@ const isAuthorized = async (req, res, next) => {
     console.log(accessTokenDecoded)
 
     //b2: neu token hop le: luu thong tin gia ma hop le (accessTokenDecoded) luu tiep vao request
-    req.JwtDecoded = accessTokenDecoded
+    req.jwtDecoded = accessTokenDecoded
 
     //b3: cho phep request di tiep(hop le)
     next()

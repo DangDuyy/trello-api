@@ -20,7 +20,7 @@ const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
   slug: Joi.string().required().min(3).trim().strict(),
-  description: Joi.string().required().min(5).max(255).trim().strict(),
+  description: Joi.string().required().min(3).max(255).trim().strict(),
   // Lưu ý các item trong mảng columnOrderIds là ObjectId nên cần thêm pattern cho chuẩn nhé, (lúc quay video số 57 mình quên nhưng sang đầu video số 58 sẽ có nhắc lại về cái này.)
   type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
   columnOrderIds: Joi.array().items(
@@ -47,11 +47,15 @@ const validateBeforeCreate = (async (data) => {
 })
 
 //tao record moi
-const createNew = (async (data) => {
+const createNew = (async (userId, data) => {
   try {
     const validData = await validateBeforeCreate(data)
+    const newBoardToAdd = {
+      ...validData,
+      ownerIds: [new ObjectId(userId)]
+    }
     console.log('Valid Data: ', validData)
-    const createBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
+    const createBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
     return createBoard
   }
   catch (error) {
@@ -73,15 +77,21 @@ const findOneById = (async (id) => {
   }
 })
 
-const getDetails = (async (boardId) => {
+const getDetails = (async (userId, boardId) => {
   try {
+    const queryConditions = [
+      { _id: new ObjectId(boardId) },
+      { _destroy: false },
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(userId)] } },
+        { memberIds: { $all: [new ObjectId(userId )] } }
+      ] }
+    ]
+
     //query tong hop cua mongodb
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       //match: tim dung record co id giong nhau va chua bi destroy
-      { $match: {
-        _id: new ObjectId(boardId),
-        _destroy: false
-      } },
+      { $match: { $and: queryConditions } },
       //lookup: tim kiem
       { $lookup: {
         from: columnModel.COLUMN_COLLECTION_NAME,

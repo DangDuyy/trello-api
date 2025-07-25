@@ -14,7 +14,7 @@ import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatter'
 import { DEFAULT_ITEM_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
 
-const createNew = ( async (reqBody) => {
+const createNew = ( async (userId, reqBody) => {
   try {
     //xu ly logic du lieu tuy dac thu du an
     const newBoard = {
@@ -22,7 +22,7 @@ const createNew = ( async (reqBody) => {
       slug: slugify(reqBody.title)
     }
 
-    const createBoard = await boardModel.createNew(newBoard)
+    const createBoard = await boardModel.createNew(userId, newBoard)
 
     //lay ban ghi board sau khi goi (tuy muc dich du an co can hay khong)
     const getNewBoard = await boardModel.findOneById(createBoard.insertedId)
@@ -38,9 +38,9 @@ const createNew = ( async (reqBody) => {
     throw error
   }
 })
-const getDetails = ( async (boardId) => {
+const getDetails = ( async (userId, boardId) => {
   try {
-    const board = await boardModel.getDetails(boardId)
+    const board = await boardModel.getDetails(userId, boardId)
     if (!board)
       throw new ApiError(StatusCodes.NOT_FOUND, 'no board found')
     //deepclone tao ra cai moi de xu li, ma khong anh huong den board ban dau, tuy muc dich ve sau ma co nen clonedeep hay khong
@@ -65,7 +65,7 @@ const update = ( async (boardId, reqBody) => {
   try {
     const updateData = {
       ...reqBody,
-      updatedAt: Date.now
+      updatedAt: Date.now()
     }
     const updatedBoard = await boardModel.update(boardId, updateData)
     return updatedBoard

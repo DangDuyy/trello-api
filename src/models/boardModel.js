@@ -11,6 +11,7 @@ import { ObjectId } from 'mongodb'
 import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
+import { pagingSkipValue } from '~/utils/algorithms'
 
 //define name and schema
 const BOARD_COLLECTION_NAME = 'boards'
@@ -23,6 +24,12 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   // Lưu ý các item trong mảng columnOrderIds là ObjectId nên cần thêm pattern cho chuẩn nhé, (lúc quay video số 57 mình quên nhưng sang đầu video số 58 sẽ có nhắc lại về cái này.)
   type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
   columnOrderIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+  ownerIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+  memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
   createdAt: Joi.date().timestamp('javascript').default('Date.now'),
@@ -157,6 +164,54 @@ const update = ( async (boardId, updateData) => {
   }
 })
 
+const getBoards = async (userId, page, itemsPerPage ) => {
+  try {
+    const queryConditions = [
+      // dieu kien 01: board chua bi xoa
+      { _destroy: false },
+      //dieu kien 02: useId dang thuc hien request phai nam trong 1 trong 2 mang ownerIds va memberIds
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(userId)] } },
+        { memberIds: { $all: [new ObjectId(userId)] } }
+      ] }
+    ]
+
+    const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
+      [
+        { $match: { $and: queryConditions } },
+        //sort title cua board theo A-Z (mac dinh se bi chu B hoa dung truoc chu a thuong( tho chuan bang ma ASCII))
+        { $sort: { title: 1 } },
+        //facet: de xu li nhieu luong trong 1 query
+        { $facet: {
+          //luong thu 1: query board
+          'queryBoards': [
+            { $skip: pagingSkipValue(page, itemsPerPage) }, //bo qua so luong ban ghi cua nhung page truoc do
+            { $limit: itemsPerPage } //gioi han toi da so luong ban ghi tra ve trong 1 page
+          ],
+          //luong thu 2: query dem tong so luong ban ghi boards trong db va tra ve theo bien countedAllBoards.
+          'queryTotalBoards': [{ $count: 'countedAllBoards' }]
+        } }
+      ],
+      {
+        //khai bao them thuoc tinh collation 'en' de fix vu chu B hoa va chu a thuong o tren
+        collation: { locale: 'en' }
+      }
+    ).toArray()
+    console.log('query: ', query)
+
+    const res = query[0]
+
+    return {
+      boards: res.queryBoards || [],
+      totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0
+    }
+  }
+  catch (err)
+  {
+    throw new Error(err)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -165,6 +220,7 @@ export const boardModel = {
   getDetails,
   pushColumnOrderIds,
   pullColumnOrderIds,
-  update
+  update,
+  getBoards
 }
 

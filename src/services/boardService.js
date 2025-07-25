@@ -12,6 +12,8 @@ import { cardModel } from '~/models/cardModel'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatter'
+import { DEFAULT_ITEM_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
+
 const createNew = ( async (reqBody) => {
   try {
     //xu ly logic du lieu tuy dac thu du an
@@ -77,19 +79,18 @@ const moveCardToDifferentColumn = async (reqBody) => {
   try {
     // eslint-disable-next-line no-console
     console.log('boardService - moveCardToDifferentColumn:', reqBody)
-    
+
     //cap nhat lai column cu, sau khi lay card ra
     await columnModel.update(reqBody.prevColumnId, {
       cardOrderIds: reqBody.prevCardOrderIds || [],
       updatedAt: Date.now()
     })
-    
+
     //cap nhat lai column moi, sau khi keo card vao
     await columnModel.update(reqBody.nextColumnId, {
       cardOrderIds: reqBody.nextCardOrderIds || [],
       updatedAt: Date.now()
     })
-    
     //cap nhat lai truong columnId cua card sau khi keo
     await cardModel.update(reqBody.currentCardId, {
       columnId: reqBody.nextColumnId,
@@ -104,10 +105,24 @@ const moveCardToDifferentColumn = async (reqBody) => {
     throw err
   }
 }
+const getBoards = async (userId, page, itemsPerPage) => {
+  try {
+    //neu khong ton tai page hoac itemsPerPage tu phia FE thi BE se can phai luon gan gia tri mac dinh
+    if (!page) page = DEFAULT_PAGE
+    if (!itemsPerPage) itemsPerPage = DEFAULT_ITEM_PER_PAGE
 
+    const result = await boardModel.getBoards( userId, parseInt(page, 10), parseInt(itemsPerPage, 10))
+
+    return result
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
 export const boardService = {
   createNew,
   getDetails,
   update,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
+  getBoards
 }

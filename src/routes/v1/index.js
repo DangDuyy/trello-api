@@ -6,7 +6,7 @@
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { boardRoutes } from './boardRoute'
-import { cardRoutes } from './cartRoute'
+import { cardRoutes } from './cardRoute'
 import { columnRoutes } from './columnRoute'
 import { userRoutes } from './userRoute'
 const Router = express.Router()

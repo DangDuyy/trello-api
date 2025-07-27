@@ -9,6 +9,7 @@ import { StatusCodes } from 'http-status-codes'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 const createNew = ( async (reqBody) => {
   try {
     const newCard = {
@@ -42,13 +43,26 @@ const getDetails = ( async (cardId) => {
   }
 })
 
-const update = async (cardId, reqBody) => {
+const update = async (cardId, reqBody, cardCoverFile) => {
   try {
     const updatedData = {
       ...reqBody,
       updatedAt: Date.now()
     }
-    const updatedCard = await cardModel.update(cardId, updatedData)
+    let updatedCard = {}
+
+    if (cardCoverFile) {
+      const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'card-covers')
+
+      updatedCard = await cardModel.update(cardId, {
+        cover: uploadResult.secure_url
+      })
+    }
+    else
+    {
+      //cac truong hop update card khong di kem cover
+      updatedCard = await cardModel.update(cardId, updatedData)
+    }
     return updatedCard
   }
   catch (err) {

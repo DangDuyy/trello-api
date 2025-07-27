@@ -12,6 +12,7 @@ import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { pagingSkipValue } from '~/utils/algorithms'
+import { userModel } from './userModel'
 
 //define name and schema
 const BOARD_COLLECTION_NAME = 'boards'
@@ -108,7 +109,23 @@ const getDetails = (async (userId, boardId) => {
         //khoa ngoai tro den bang can join
         foreignField: 'boardId',
         as: 'cards'
-      } }
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'ownerIds',
+        foreignField: '_id',
+        as: 'owners',
+        //pipeline trong lookup de xu ly 1 hoac nhieu luong can thiet
+        //$project de chi dinh vai field khong lay ve bang cach gan no = 0
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'memberIds',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      }}
     ]).toArray()
     console.log(result)
 

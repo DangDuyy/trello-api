@@ -43,7 +43,7 @@ const getDetails = ( async (cardId) => {
   }
 })
 
-const update = async (cardId, reqBody, cardCoverFile) => {
+const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
   try {
     const updatedData = {
       ...reqBody,
@@ -57,6 +57,17 @@ const update = async (cardId, reqBody, cardCoverFile) => {
       updatedCard = await cardModel.update(cardId, {
         cover: uploadResult.secure_url
       })
+    }
+    else if (updatedData.commentToAdd) {
+      //tao du lieu comment de them vao database, can bo sung them nhung field can thiet
+      const commentData = {
+        ...updatedData.commentToAdd,
+        commentetAt: Date.now(),
+        userId: userInfo._id,
+        userEmail: userInfo.email
+      }
+      //unshift === push (first in last out)
+      updatedCard = await cardModel.unshiftNewComment(cardId, commentData)
     }
     else
     {

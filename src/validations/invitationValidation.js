@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import ApiError from '~/utils/ApiError'
 
-const createNewBoardInvition = async (req, res, next) => {
+const createNewBoardInvitation = async (req, res, next) => {
   const correctCondition = Joi.object({
     inviteeEmail: Joi.string().required(),
     boardId: Joi.string().required()
@@ -19,5 +19,5 @@ const createNewBoardInvition = async (req, res, next) => {
   }
 }
 export const invitationValidation = {
-  createNewBoardInvition
+  createNewBoardInvitation
 }

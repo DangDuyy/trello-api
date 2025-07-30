@@ -4,6 +4,8 @@ import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { pickUser } from '~/utils/formatter'
 import { invitationModel } from '~/models/invitationModel'
+import { INVITATION_TYPES } from '~/utils/constants'
+import { BOARD_INVITATION_STATUS } from '~/utils/constants'
 const createNewBoardInvitation = async (reqBody, inviterId) => {
   try {
     const inviter = await userModel.findOneById(inviterId)
@@ -20,10 +22,10 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
     const newInvitationData = {
       inviterId,
       inviteeId: invitee._id.toString(), //chuyen tu objectId ve string vi sang ben Model co check lai data o ham create
-      // type: INVITATION_TYPES.BOARD_INVITATION,
+      type: INVITATION_TYPES.BOARD_INVITATION,
       boardInvitation: {
         boardId: board._id.toString(),
-        // status: BOARD_INVITATION_STATUS.PENDING
+        status: BOARD_INVITATION_STATUS.PENDING
       }
     }
     //goi sang model de luu vao database

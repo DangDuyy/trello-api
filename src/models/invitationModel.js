@@ -1,10 +1,8 @@
 import Joi from 'joi'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { INVITATION_TYPES } from '~/utils/constants'
-import { BOARD_INVITATION_STATUS } from '~/utils/constants'
 import { ObjectId } from 'mongodb'
-import { create } from 'lodash'
 import { GET_DB } from '~/config/mongodb'
+import { BOARD_INVITATION_STATUS, INVITATION_TYPES } from '~/utils/constants'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 //define collection (name and schema)
 const INVITATION_COLLECTION_NAME = 'invitations'
 const INVITATION_COLLECTION_SCHEMA = Joi.object({
@@ -45,7 +43,9 @@ const createNewBoardInvitation = async (data) => {
         boardId: new ObjectId(validData.boardInvitation.boardId)
       }
     }
-    return newInvitationToAdd
+    //goi insert voa db
+    const createInvitation = await GET_DB().collection(INVITATION_COLLECTION_NAME).insertOne(newInvitationToAdd)
+    return createInvitation
   }
   catch (err)
   {

@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { BOARD_INVITATION_STATUS, INVITATION_TYPES } from '~/utils/constants'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { boardModel } from './boardModel'
+import { userModel } from './userModel'
 //define collection (name and schema)
 const INVITATION_COLLECTION_NAME = 'invitations'
 const INVITATION_COLLECTION_SCHEMA = Joi.object({
@@ -29,7 +31,7 @@ const validateBeforeCreate = async (data) => {
 
 const createNewBoardInvitation = async (data) => {
   try {
-    const validData = validateBeforeCreate(data)
+    const validData = await validateBeforeCreate(data)
     //covert tu id sang objectId cho chuan
     let newInvitationToAdd = {
       ...validData,
@@ -91,8 +93,53 @@ const update = async (invitationId, updateData) => {
     throw new Error(err)
   }
 }
+
+const findByUser = async (userId) => {
+  try {
+    //ben trai la attribute trong schema cua model dang can xet
+    const queryConditions = [
+      { inviteeId: new ObjectId(userId) },
+      { _destroy: false }
+    ]
+    //aggregate luon luon phai tra ve array
+    const results = await GET_DB().collection(INVITATION_COLLECTION_NAME).aggregate([
+      { $match: { $and: queryConditions } },
+      //lookup: tim ben schema khac
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        //localField: la local cua model dang lam (vd o day la invitationModel)
+        localField: 'inviterId',
+        foreignField: '_id',
+        as: 'inviter',
+        //pipeline: loai bo nhung truong khong muon lay trong project
+        //sau cac toan tu and, or, pipeline la []
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviteeId',
+        foreignField: '_id',
+        as: 'invitee',
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      } },
+      { $lookup: {
+        from: boardModel.BOARD_COLLECTION_NAME,
+        localField: 'boardInvitation.boardId',
+        foreignField: '_id',
+        as: 'board'
+      } }
+    ]).toArray()
+    console.log('invitations', results)
+    return results
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
+
 export const invitationModel = {
   createNewBoardInvitation,
   findOneById,
-  update
+  update,
+  findByUser
 }

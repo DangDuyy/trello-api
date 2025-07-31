@@ -127,7 +127,7 @@ const getDetails = (async (userId, boardId) => {
         pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
       } }
     ]).toArray()
-    console.log(result)
+    // console.log(result)
 
     //neu co du lieu tra ve board o index 0 , nguoc laij tra ve null
     return result[0] || null

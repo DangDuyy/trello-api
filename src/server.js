@@ -14,6 +14,9 @@ import { APIs_V1 } from '~/routes/v1'
 import { env } from '~/config/environment'
 import { errorHandlingMiddleware } from '~/middlewares/exampleHandlingMiddleware'
 import cookieParser from 'cookie-parser'
+import socketIo from 'socket.io'
+import http from 'http'
+import { inviteUserToBoardSocket } from './sockets/inviteUserToBoardSocket'
 
 const START_SERVER = () => {
 
@@ -43,9 +46,18 @@ const START_SERVER = () => {
   //middle xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
+  //tao 1 server moi boc app express de lam real time voi socket.io
+  const server = http.createServer(app)
+  // khoi tao bien io voi server va cors
+  const io = socketIo(server, { cors: corsOptions })
+  io.on('connection', (socket) => {
+    //goi cac socket tuy theo tinh nang
+    inviteUserToBoardSocket(socket)}
+  )
   if (env.BUILD_MODE === 'production') {
     // moi truong production do render support
-    app.listen(process.env.PORT, () => {
+    //bth thi dung server thay cho app
+    server.listen(process.env.PORT, () => {
     // eslint-disable-next-line no-console
       console.log(`3. Production: Hello ${env.AUTHOR}, I am running at Port: ${ process.env.PORT }/`)
     })
@@ -53,7 +65,8 @@ const START_SERVER = () => {
   else
   {
     //moi truong local dev
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    //bth thi dung server thay cho app
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
     // eslint-disable-next-line no-console
       console.log(`3. LocalDev: Hello ${env.AUTHOR}, I am running at ${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }/`)
     })

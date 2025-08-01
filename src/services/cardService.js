@@ -62,12 +62,16 @@ const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
       //tao du lieu comment de them vao database, can bo sung them nhung field can thiet
       const commentData = {
         ...updatedData.commentToAdd,
-        commentetAt: Date.now(),
+        commentedAt: Date.now(),
         userId: userInfo._id,
         userEmail: userInfo.email
       }
       //unshift === push (first in last out)
       updatedCard = await cardModel.unshiftNewComment(cardId, commentData)
+    }
+    //them thanh vien hay xoa khoi card
+    else if (updatedData.incomingMemberInfo) {
+      updatedCard = await cardModel.updateMembers(cardId, updatedData.incomingMemberInfo)
     }
     else
     {

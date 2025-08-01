@@ -157,7 +157,7 @@ const update = async (userId, reqBody, userAvatarFile) => {
     else if (userAvatarFile) {
       //truong hop upload file len cloudStorage, cu the la Cloudinary
       const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
-      console.log(uploadResult)
+      // console.log(uploadResult)
 
       //luu lai url cua file vao database
       updatedUser = await userModel.update(existUser._id, {

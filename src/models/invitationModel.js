@@ -129,7 +129,7 @@ const findByUser = async (userId) => {
         as: 'board'
       } }
     ]).toArray()
-    console.log('invitations', results)
+    // console.log('invitations', results)
     return results
   }
   catch (err) {

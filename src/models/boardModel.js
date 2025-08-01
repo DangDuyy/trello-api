@@ -55,7 +55,7 @@ const createNew = (async (userId, data) => {
       ...validData,
       ownerIds: [new ObjectId(userId)]
     }
-    console.log('Valid Data: ', validData)
+    // console.log('Valid Data: ', validData)
     const createBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
     return createBoard
   }
@@ -169,7 +169,21 @@ const pullColumnOrderIds = ( async (column) => {
     throw new Error(error)
   }
 })
-//push columnId vao mang columnOrderIds
+
+const pushMemberIds = async (boardId, userId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) },
+      { $push: { memberIds: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result || null
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
+
 const update = ( async (boardId, updateData) => {
   try {
     //lay tra ten cac attribute cua table, neu co truong createdAt va _id thi khong cap nhat 2 truong do
@@ -239,6 +253,7 @@ const getBoards = async (userId, page, itemsPerPage ) => {
   }
 }
 
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -248,6 +263,7 @@ export const boardModel = {
   pushColumnOrderIds,
   pullColumnOrderIds,
   update,
-  getBoards
+  getBoards,
+  pushMemberIds
 }
 

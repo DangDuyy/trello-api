@@ -17,7 +17,7 @@ const verifyAccount = async (req, res, next) => {
   try {
     const result = await userService.verifyAccount(req.body)
     // eslint-disable-next-line no-console
-    // console.log(result)
+    console.log(result)
     res.status(StatusCodes.OK).json(result)
   }
   catch (err) {

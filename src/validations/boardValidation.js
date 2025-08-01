@@ -50,7 +50,7 @@ const update = async (req, res, next) => {
 }
 
 const moveCardToDifferentColumn = async (req, res, next) => {
-  console.log('moveCardToDifferentColumn validation - req.body:', req.body)
+  // console.log('moveCardToDifferentColumn validation - req.body:', req.body)
   const correctCondition = Joi.object({
     currentCardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     prevColumnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),

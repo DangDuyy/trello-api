@@ -46,7 +46,7 @@ const createNew = (async (data) => {
       boardId: new ObjectId(validData.boardId),
       columnId: new ObjectId(validData.columnId)
     }
-    console.log('Valid Data: ', validData)
+    // console.log('Valid Data: ', validData)
     const createColumn = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardToAdd)
     return createColumn
   }

@@ -74,7 +74,47 @@ const getInvitations = async (userId) => {
   }
 }
 
+const updateBoardInvitation = async (userId, invitationId, status) => {
+  try {
+    const getInvitation = await invitationModel.findOneById(invitationId)
+    if (!getInvitation) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Invitation not found!!!')
+    }
+    // console.log(getInvitation)
+    const boardId = getInvitation.boardInvitation.boardId
+    const getBoard = await boardModel.findOneById(boardId)
+    if (!getBoard) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!!!')
+    }
+    //kiem tra xem neu status la accepted join board ma la cai thang user(invitee) da la owner hoac member cua board roi thi tra ve thong bao loi luon
+    //note: 2 mang memberIds va ownerIds cua board no dang la kieu du lieu objectId nen cho no sang string de de check
+    //spread operator de noi mang(hoac dung concat)
+    const boardOwnerAndMemberIds = [...getBoard.ownerIds, ...getBoard.memberIds].toString()
+    if (status === BOARD_INVITATION_STATUS.ACCEPTED && boardOwnerAndMemberIds.includes(userId)) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'You cannot invite already member to this board')
+    }
+
+    const updatedData = {
+      boardInvitation: {
+        ...getInvitation.boardInvitation,
+        status: status
+      }
+    }
+    //b1
+    const result = await invitationModel.update(invitationId, updatedData)
+
+    //b2 them inviterid vao memberIds cua board
+    if (result.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
+      await boardModel.pushMemberIds(boardId, userId)
+    }
+    return result
+  }
+  catch (err) {
+    throw new Error(err)
+  }
+}
 export const invitationService = {
   createNewBoardInvitation,
-  getInvitations
+  getInvitations,
+  updateBoardInvitation
 }

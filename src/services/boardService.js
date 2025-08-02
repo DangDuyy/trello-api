@@ -105,13 +105,13 @@ const moveCardToDifferentColumn = async (reqBody) => {
     throw err
   }
 }
-const getBoards = async (userId, page, itemsPerPage) => {
+const getBoards = async (userId, page, itemsPerPage,queryFilters) => {
   try {
     //neu khong ton tai page hoac itemsPerPage tu phia FE thi BE se can phai luon gan gia tri mac dinh
     if (!page) page = DEFAULT_PAGE
     if (!itemsPerPage) itemsPerPage = DEFAULT_ITEM_PER_PAGE
 
-    const result = await boardModel.getBoards( userId, parseInt(page, 10), parseInt(itemsPerPage, 10))
+    const result = await boardModel.getBoards( userId, parseInt(page, 10), parseInt(itemsPerPage, 10), queryFilters)
 
     return result
   }

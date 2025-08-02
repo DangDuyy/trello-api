@@ -62,10 +62,11 @@ const moveCardToDifferentColumn = ( async (req, res, next) => {
 const getBoards = async (req, res, next ) => {
   try {
     const userId = req.jwtDecoded._id
-    const { page, itemsPerPage } = req.query
+    const { page, itemsPerPage, q } = req.query
+    const queryFilters = q
     // eslint-disable-next-line no-console
     console.log('getBoards - userId:', userId, 'page:', page, 'itemsPerPage:', itemsPerPage)
-    const result = await boardService.getBoards(userId, page, itemsPerPage)
+    const result = await boardService.getBoards(userId, page, itemsPerPage, queryFilters)
     // eslint-disable-next-line no-console
     console.log('getBoards - result:', result)
 
